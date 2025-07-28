@@ -1,28 +1,35 @@
-const { REST, Routes } = require('discord.js');
+const { REST, Routes } = require("discord.js");
 
-const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+const { fetchForecast } = require("../requests/forecast");
+
+const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);
 
 async function clientReadyHandler(client) {
-    console.log(`Logged in as ${client.user.tag}!`);
+  console.log(`Logged in as ${client.user.tag}!`);
 
-    try {
+  console.log(await fetchForecast("Cairo"));
+
+  try {
     console.log(`Starting refreshing ${client.commands.size} commands!`);
 
     const data = await rest.put(
-        Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
-        {
-            body: client.commands.map((command) => {
-                return command.data.toJSON();
-            })
-        }
+      Routes.applicationGuildCommands(
+        process.env.CLIENT_ID,
+        process.env.GUILD_ID
+      ),
+      {
+        body: client.commands.map((command) => {
+          return command.data.toJSON();
+        }),
+      }
     );
 
-        console.log(`Successfully reloaded ${data.length} commands!`);
-    } catch (error) {
-        console.error(error)
-    }
+    console.log(`Successfully reloaded ${data.length} commands!`);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 module.exports = {
-    clientReadyHandler,
-}
+  clientReadyHandler,
+};
